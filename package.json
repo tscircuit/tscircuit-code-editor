@@ -12,7 +12,7 @@
     "react-dom": "^19.2.3"
   },
   "peerDependencies": {
-    "typescript": "^5.9.3"
+    "typescript": "^5"
   },
   "scripts": {
     "start": "cosmos",
@@ -20,11 +20,5 @@
     "cosmos-export": "cosmos-export",
     "format": "biome format . --write",
     "format:check": "biome format ."
-  },
-  "dependencies": {
-    "@monaco-editor/react": "^4.8.0-rc.3",
-    "@typescript/ata": "^0.9.8",
-    "@typescript/vfs": "^1.6.2",
-    "monaco-editor": "^0.55.1"
   }
 }
