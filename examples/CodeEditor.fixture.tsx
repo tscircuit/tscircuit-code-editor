@@ -5,18 +5,17 @@ import type { EditorFile } from "../src/types"
 const sampleFiles: EditorFile[] = [
   {
     path: "index.tsx",
-    content: `import { Circuit } from "tscircuit"
-import { MyResistor } from "./components/MyResistor"
+    content: `import { MyResistor } from "./components/MyResistor"
 
 export default function MyCircuit() {
   return (
-    <Circuit>
+    <board>
       <MyResistor name="R1" resistance="10kohm" />
       <capacitor name="C1" capacitance="100nF" footprint="0603" />
       <inductor name="L1" inductance="10uH" footprint="0805" />
       <trace from=".R1 > .pin2" to=".C1 > .pos" />
       <trace from=".C1 > .neg" to=".L1 > .pin1" />
-    </Circuit>
+    </board>
   )
 }`,
   },

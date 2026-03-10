@@ -5,11 +5,11 @@ const tsxCode = `import { Circuit } from "tscircuit"
 
 export default function MyCircuit() {
   return (
-    <Circuit>
+    <board>
       <resistor name="R1" resistance="10kohm" footprint="0402" />
       <capacitor name="C1" capacitance="100nF" footprint="0603" />
       <trace from=".R1 > .pin2" to=".C1 > .pos" />
-    </Circuit>
+    </board>
   )
 }`
 
