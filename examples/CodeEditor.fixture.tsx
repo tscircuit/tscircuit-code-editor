@@ -1,5 +1,6 @@
+import "../src/styles.css"
 import { CodeEditor } from "../src/components/CodeEditor"
-import type { EditorFile } from "../src/components/Editor"
+import type { EditorFile } from "../src/types"
 
 const sampleFiles: EditorFile[] = [
   {
@@ -7,54 +8,68 @@ const sampleFiles: EditorFile[] = [
     content: `import { Circuit } from "tscircuit"
 import { MyResistor } from "./components/MyResistor"
 
-export default function App() {
+export default function MyCircuit() {
   return (
     <Circuit>
       <MyResistor name="R1" resistance="10kohm" />
       <capacitor name="C1" capacitance="100nF" footprint="0603" />
+      <inductor name="L1" inductance="10uH" footprint="0805" />
       <trace from=".R1 > .pin2" to=".C1 > .pos" />
+      <trace from=".C1 > .neg" to=".L1 > .pin1" />
     </Circuit>
   )
 }`,
   },
   {
     path: "components/MyResistor.tsx",
-    content: `import { useResistor } from "tscircuit"
-
-interface MyResistorProps {
+    content: `interface MyResistorProps {
   name: string
   resistance: string
 }
 
 export function MyResistor({ name, resistance }: MyResistorProps) {
-  useResistor(name, { resistance, footprint: "0402" })
   return <resistor name={name} resistance={resistance} footprint="0402" />
+}`,
+  },
+  {
+    path: "components/PowerSupply.tsx",
+    content: `interface PowerSupplyProps {
+  voltage: string
+}
+
+export function PowerSupply({ voltage }: PowerSupplyProps) {
+  return (
+    <group>
+      <capacitor name="C_IN" capacitance="10uF" footprint="0805" />
+      <capacitor name="C_OUT" capacitance="22uF" footprint="0805" />
+      <resistor name="R_FB1" resistance="100kohm" footprint="0402" />
+      <resistor name="R_FB2" resistance="47kohm" footprint="0402" />
+    </group>
+  )
 }`,
   },
   {
     path: "utils/helpers.ts",
     content: `export function formatResistance(value: number): string {
-  if (value >= 1000000) {
-    return \`\${value / 1000000}M\`
-  }
-  if (value >= 1000) {
-    return \`\${value / 1000}k\`
-  }
+  if (value >= 1000000) return \`\${value / 1000000}M\`
+  if (value >= 1000) return \`\${value / 1000}k\`
   return \`\${value}\`
 }
 
 export function parseResistance(str: string): number {
   const match = str.match(/^([\\d.]+)([kKmM]?)/)
   if (!match) return 0
-  
   const value = parseFloat(match[1])
   const unit = match[2].toLowerCase()
-  
   switch (unit) {
-    case 'k': return value * 1000
-    case 'm': return value * 1000000
+    case "k": return value * 1000
+    case "m": return value * 1000000
     default: return value
   }
+}
+
+export function generateNetName(from: string, to: string): string {
+  return \`NET_\${from}_\${to}\`.replace(/[^a-zA-Z0-9_]/g, "_")
 }`,
   },
   {
@@ -64,72 +79,59 @@ export function parseResistance(str: string): number {
   "version": "1.0.0",
   "components": {
     "resistors": ["R1", "R2"],
-    "capacitors": ["C1"]
+    "capacitors": ["C1", "C_IN", "C_OUT"],
+    "inductors": ["L1"]
   },
   "settings": {
     "autoLayout": true,
-    "gridSize": 1.27
+    "gridSize": 1.27,
+    "traceWidth": 0.25
   }
 }`,
   },
   {
-    path: "README.md",
-    content: `# My Circuit
-
-A sample tscircuit project demonstrating the code editor.
-
-## Features
-
-- TypeScript support with IntelliSense
-- Multi-file editing
-- Quick open (Cmd/Ctrl+P)
-- Sidebar file explorer
-- Syntax highlighting
-
-## Usage
-
-\`\`\`tsx
-import { CodeEditor } from "tscircuit-code-editor"
-
-<CodeEditor
-  files={files}
-  theme="vs-dark"
-  onChange={(value, path) => console.log(path, value)}
-/>
-\`\`\`
-`,
+    path: "manual-edits.json",
+    content: `{
+  "pcb_placements": [],
+  "schematic_placements": [],
+  "edit_events": [],
+  "manual_trace_hints": []
+}`,
   },
 ]
 
 export default {
-  "Basic Editor": () => (
+  "Full IDE": () => (
     <CodeEditor
       files={sampleFiles}
       initialFile="index.tsx"
-      theme="vs-dark"
       height="100vh"
-      onChange={(value, path) => console.log("File changed:", path)}
-      onFileSelect={(path) => console.log("File selected:", path)}
-      onSave={(value, path) => console.log("Saved:", path)}
+      showPreview
+      onChange={(value, path) => console.log("Changed:", path)}
+      onFileSelect={(path) => console.log("Selected:", path)}
+      onSave={(files) => console.log("Save:", files.length, "files")}
+      onCreateFile={(path, content) => console.log("Create:", path)}
+      onDeleteFile={(path) => console.log("Delete:", path)}
+      onRenameFile={(from, to) => console.log("Rename:", from, "->", to)}
     />
   ),
 
-  "Light Theme": () => (
+  "Editor Only": () => (
     <CodeEditor
       files={sampleFiles}
       initialFile="index.tsx"
-      theme="light"
       height="100vh"
-    />
-  ),
-
-  "No Sidebar": () => (
-    <CodeEditor
-      files={sampleFiles}
-      initialFile="components/MyResistor.tsx"
-      theme="vs-dark"
       showSidebar={false}
+      showPreview={false}
+    />
+  ),
+
+  "With Preview": () => (
+    <CodeEditor
+      files={sampleFiles}
+      initialFile="index.tsx"
       height="100vh"
+      showPreview
     />
   ),
 
@@ -137,47 +139,35 @@ export default {
     <CodeEditor
       files={sampleFiles}
       initialFile="index.tsx"
-      theme="vs-dark"
+      height="100vh"
       readOnly
-      height="100vh"
-    />
-  ),
-
-  "Custom Font Size": () => (
-    <CodeEditor
-      files={sampleFiles}
-      initialFile="index.tsx"
-      theme="vs-dark"
-      fontSize={18}
-      height="100vh"
     />
   ),
 
   "No Minimap": () => (
     <CodeEditor
       files={sampleFiles}
-      initialFile="utils/helpers.ts"
-      theme="vs-dark"
+      initialFile="index.tsx"
+      height="100vh"
       showMinimap={false}
-      height="100vh"
     />
   ),
 
-  "JSON File": () => (
+  "Large Font": () => (
     <CodeEditor
       files={sampleFiles}
-      initialFile="config.json"
-      theme="vs-dark"
+      initialFile="index.tsx"
       height="100vh"
+      fontSize={18}
     />
   ),
 
-  "Markdown File": () => (
+  "Single File": () => (
     <CodeEditor
-      files={sampleFiles}
-      initialFile="README.md"
-      theme="vs-dark"
+      files={sampleFiles.slice(0, 1)}
+      initialFile="index.tsx"
       height="100vh"
+      showSidebar={false}
     />
   ),
 }
