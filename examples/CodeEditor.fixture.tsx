@@ -1,6 +1,6 @@
 import "../src/styles.css"
 import { CodeEditor } from "../src/components/CodeEditor"
-import type { EditorFile } from "../src/types"
+import type { EditorFile, PreviewWarning } from "../src/types"
 
 const sampleFiles: EditorFile[] = [
   {
@@ -99,6 +99,19 @@ export function generateNetName(from: string, to: string): string {
   },
 ]
 
+const samplePreviewWarnings: PreviewWarning[] = [
+  {
+    type: "source_property_ignored_warning",
+    message:
+      'Ignored schSheetName "power" on U1: no schematic sheet with that name exists',
+  },
+  {
+    type: "source_property_ignored_warning",
+    message:
+      'Ignored schSheetName "power" on U2: no schematic sheet with that name exists',
+  },
+]
+
 export default {
   "Full IDE": () => (
     <CodeEditor
@@ -131,6 +144,16 @@ export default {
       initialFile="index.tsx"
       height="100vh"
       showPreview
+    />
+  ),
+
+  "With Preview Warnings": () => (
+    <CodeEditor
+      files={sampleFiles}
+      initialFile="index.tsx"
+      height="100vh"
+      showPreview
+      previewWarnings={samplePreviewWarnings}
     />
   ),
 

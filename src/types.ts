@@ -31,3 +31,8 @@ export interface FileTreeNode {
   type: "file" | "directory"
   children?: FileTreeNode[]
 }
+
+export interface PreviewWarning {
+  message: string
+  type?: string
+}
