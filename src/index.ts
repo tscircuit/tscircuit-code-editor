@@ -20,6 +20,7 @@ export type {
   CursorPosition,
   SearchMatch,
   FileTreeNode,
+  PreviewWarning,
 } from "./types"
 
 export {

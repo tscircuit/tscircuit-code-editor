@@ -7,7 +7,12 @@ import {
   Search,
   Save,
 } from "lucide-react"
-import type { EditorFile, EditorTheme, CursorPosition } from "../types"
+import type {
+  EditorFile,
+  EditorTheme,
+  CursorPosition,
+  PreviewWarning,
+} from "../types"
 import type { editor } from "monaco-editor"
 import { MonacoEditor } from "./MonacoEditor"
 import { FileSidebar } from "./FileSidebar"
@@ -46,6 +51,7 @@ export interface CodeEditorProps {
   onRenameFile?: (oldPath: string, newPath: string) => void
 
   renderPreview?: (props: { fsMap: Map<string, string> }) => React.ReactNode
+  previewWarnings?: PreviewWarning[]
 
   className?: string
   style?: React.CSSProperties
@@ -78,6 +84,7 @@ export function CodeEditor({
   onRenameFile,
 
   renderPreview,
+  previewWarnings,
 
   className = "",
   style,
@@ -474,6 +481,7 @@ export function CodeEditor({
                 <PreviewPanel
                   fsMap={fsMap}
                   renderPreview={renderPreview}
+                  warnings={previewWarnings}
                   className="h-full"
                 />
               </div>
